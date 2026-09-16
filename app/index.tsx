@@ -1,0 +1,91 @@
+import React,{useState}from"react";
+import{Alert,Pressable,SafeAreaView,ScrollView,StyleSheet,Text,View}from"react-native";
+import{Ionicons}from"@expo/vector-icons";
+
+const C={teal:"#0F9D83",ink:"#17302B",muted:"#71807C",bg:"#F5FAF8",card:"#FFF",line:"#E3EEEA",blue:"#EAF5FF",amber:"#E89B22",red:"#D9534F"};
+
+type Screen="Home"|"Create"|"Upload"|"Verify"|"Plan"|"Reminder"|"Family"|"Health"|"Food"|"Consent";
+const Icon=({name,size=22}:{name:any,size?:number})=><Ionicons name={name} size={size} color={C.teal}/>;
+
+function Header({back,onBack}:{back?:boolean,onBack?:()=>void}){
+ return <View style={s.header}>{back&&<Pressable onPress={onBack} style={s.back}><Icon name="arrow-back" size={22}/></Pressable>}
+ <View style={{flex:1}}><Text style={s.brand}>CareLoop</Text><Text style={s.tag}>Care plan, made simple.</Text></View>
+ <View style={s.badge}><Text style={s.badgeText}>DEMO MODE</Text></View></View>
+}
+
+function Step({n,title,done}:{n:number,title:string,done?:boolean}){
+ return <View style={s.step}><View style={[s.stepCircle,done&&{backgroundColor:C.teal}]}><Text style={[s.stepNum,done&&{color:"#fff"}]}>{done?"✓":n}</Text></View><Text style={s.stepText}>{title}</Text></View>
+}
+
+function Button({title,onPress,secondary=false}:{title:string,onPress:()=>void,secondary?:boolean}){
+ return <Pressable onPress={onPress} style={[s.btn,secondary&&s.btn2]}><Text style={[s.btnText,secondary&&s.btnText2]}>{title}</Text></Pressable>
+}
+
+function Home({go}:{go:(x:Screen)=>void}){
+ return <ScrollView contentContainerStyle={s.content}>
+  <View style={s.hero}><View><Text style={s.eyebrow}>PATIENT CARE COMPANION</Text><Text style={s.title}>Hello, Anita 👋</Text><Text style={s.muted}>Let’s keep today’s care routine on track.</Text></View><View style={s.avatar}><Text style={s.avatarTxt}>AS</Text></View></View>
+  <View style={s.active}><View style={s.activeIcon}><Icon name="shield-checkmark-outline" size={28}/></View><View style={{flex:1}}><Text style={s.cardTitle}>Care plan active</Text><Text style={s.meta}>15 Sep – 15 Oct 2026 · Verified</Text></View><Text style={s.green}>ACTIVE</Text></View>
+  <Text style={s.section}>Today</Text>
+  <View style={s.card}><Text style={s.eyebrow}>NEXT MEDICATION · 01:00 PM</Text><Text style={s.med}>Amlodipine 5 mg</Text><Text style={s.meta}>After lunch</Text><Button title="Open reminder" onPress={()=>go("Reminder")}/></View>
+  <View style={s.two}><Pressable style={s.tile} onPress={()=>go("Plan")}><Icon name="calendar-outline"/><Text style={s.tileTitle}>Care plan</Text><Text style={s.tileVal}>2 / 3 doses</Text></Pressable><Pressable style={s.tile} onPress={()=>go("Health")}><Icon name="pulse-outline"/><Text style={s.tileTitle}>Health</Text><Text style={s.tileVal}>3 readings</Text></Pressable></View>
+  <Text style={s.section}>Start a new care plan</Text>
+  <Pressable style={s.start} onPress={()=>go("Create")}><View style={s.plus}><Icon name="add" size={28}/></View><View style={{flex:1}}><Text style={s.cardTitle}>Upload a prescription</Text><Text style={s.meta}>Turn a clinician-provided prescription into a verified routine.</Text></View><Icon name="chevron-forward"/></Pressable>
+  <Text style={s.section}>Family</Text><Pressable style={s.start} onPress={()=>go("Family")}><View style={s.plus}><Icon name="people-outline"/></View><View style={{flex:1}}><Text style={s.cardTitle}>Rahul Sharma</Text><Text style={s.meta}>Primary caregiver · Authorized</Text></View><Icon name="chevron-forward"/></Pressable>
+ </ScrollView>
+}
+
+function Create({go}:{go:(x:Screen)=>void}){
+ return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Create care plan</Text><Text style={s.muted}>A simple workflow from prescription to daily routine.</Text>
+ <View style={s.steps}><Step n={1} title="Patient profile" done/><Step n={2} title="Prescription" /><Step n={3} title="Verify" /><Step n={4} title="Activate" /></View>
+ <View style={s.card}><Text style={s.cardTitle}>Patient</Text><View style={s.profile}><View style={s.avatar}><Text style={s.avatarTxt}>AS</Text></View><View><Text style={s.med}>Anita Sharma</Text><Text style={s.meta}>58 years · Female</Text></View></View><Text style={s.meta}>Conditions: Type 2 diabetes · Hypertension</Text><Text style={s.meta}>Diet: Vegetarian</Text></View>
+ <Button title="Continue to prescription" onPress={()=>go("Upload")}/></ScrollView>
+}
+
+function Upload({go}:{go:(x:Screen)=>void}){
+ return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Prescription</Text><Text style={s.muted}>Use a clinician-provided prescription. Demo mode simulates OCR extraction.</Text>
+ <View style={s.upload}><Icon name="document-text-outline" size={42}/><Text style={s.uploadTitle}>Prescription_Anita_15Sep.pdf</Text><Text style={s.meta}>Uploaded · Demo document</Text><View style={s.ocr}><Text style={s.ocrText}>✓ OCR extraction complete</Text></View></View>
+ <Text style={s.section}>Extracted medicines</Text>{["Metformin · 500 mg · 08:00 AM","Amlodipine · 5 mg · 01:00 PM","Atorvastatin · 10 mg · 09:00 PM"].map(x=><View style={s.row} key={x}><Icon name="medical-outline"/><Text style={{flex:1,marginLeft:12,color:C.ink,fontWeight:"700"}}>{x}</Text><Icon name="checkmark-circle" size={20}/></View>)}
+ <View style={s.warn}><Icon name="information-circle-outline"/><Text style={s.warnText}>Extraction must be verified by the user before the plan can be activated.</Text></View><Button title="Review & verify" onPress={()=>go("Verify")}/></ScrollView>
+}
+
+function Verify({go}:{go:(x:Screen)=>void}){
+ const [ok,setOk]=useState(false);
+ return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Verify prescription</Text><Text style={s.muted}>Compare the extracted details with the original prescription before activation.</Text>
+ <View style={s.card}><Text style={s.cardTitle}>3 medicines extracted</Text>{["Metformin 500 mg · Morning","Amlodipine 5 mg · After lunch","Atorvastatin 10 mg · Night"].map(x=><View style={s.verifyRow} key={x}><Text style={s.med}>{x}</Text><Icon name="checkmark-circle-outline"/></View>)}</View>
+ <Pressable onPress={()=>setOk(!ok)} style={s.checkbox}><View style={[s.box,ok&&{backgroundColor:C.teal,borderColor:C.teal}]}>{ok&&<Text style={{color:"#fff"}}>✓</Text>}</View><Text style={s.checkboxText}>I verified these details against the clinician-provided prescription.</Text></Pressable>
+ <Button title="Activate care plan" onPress={()=>ok?go("Plan"):Alert.alert("Verification required","Please confirm the extracted details first.")}/></ScrollView>
+}
+
+function Plan({go}:{go:(x:Screen)=>void}){
+ return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Care plan activated</Text><Text style={s.muted}>15 Sep – 15 Oct 2026</Text><View style={s.success}><Icon name="checkmark-circle" size={34}/><Text style={s.successTitle}>Verified plan is now active</Text><Text style={s.meta}>Reminders will follow the verified schedule.</Text></View>
+ <Text style={s.section}>Medication schedule</Text>{["08:00 AM  ·  Metformin 500 mg","01:00 PM  ·  Amlodipine 5 mg","09:00 PM  ·  Atorvastatin 10 mg"].map(x=><View style={s.row} key={x}><Icon name="time-outline"/><Text style={{flex:1,marginLeft:12,color:C.ink,fontWeight:"700"}}>{x}</Text></View>)}
+ <View style={s.warn}><Icon name="lock-closed-outline"/><Text style={s.warnText}>The reminder engine follows the verified plan. It does not change doses or prescribe medicines.</Text></View><Button title="See medication reminder" onPress={()=>go("Reminder")}/></ScrollView>
+}
+
+function Reminder({go}:{go:(x:Screen)=>void}){
+ const [taken,setTaken]=useState(false);
+ return <ScrollView contentContainerStyle={s.content}><Text style={s.eyebrow}>MEDICATION REMINDER</Text><Text style={s.title}>Did you take it?</Text><Text style={s.muted}>Amlodipine 5 mg · After lunch · 01:00 PM</Text>
+ <View style={s.reminder}><View style={s.bigMed}><Icon name="medical-outline" size={38}/></View><Text style={s.remTime}>01:10 PM</Text><Text style={s.remName}>Amlodipine 5 mg</Text><Text style={s.meta}>From Anita’s verified care plan</Text></View>
+ {!taken?<><Button title="YES — I took it" onPress={()=>{setTaken(true);Alert.alert("Recorded","Dose confirmation saved at 01:10 PM.");}}/><Button secondary title="NO — I did not take it" onPress={()=>{Alert.alert("Caregiver alert","Rahul Sharma has been notified in this demo.");}}/></>:<View style={s.success}><Icon name="checkmark-circle" size={34}/><Text style={s.successTitle}>Dose confirmed</Text><Text style={s.meta}>Recorded at 01:10 PM</Text></View>}
+ <Pressable style={s.link} onPress={()=>go("Family")}><Text style={s.linkText}>View caregiver status →</Text></Pressable></ScrollView>
+}
+
+function Family(){return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Family Care</Text><Text style={s.muted}>Sharing stays under patient authorization.</Text><View style={s.family}><View style={s.avatar}><Text style={s.avatarTxt}>RS</Text></View><View style={{flex:1}}><Text style={s.cardTitle}>Rahul Sharma</Text><Text style={s.meta}>Primary caregiver · Authorized</Text></View><Text style={s.green}>ACTIVE</Text></View><View style={s.alert}><Icon name="notifications-outline"/><View style={{flex:1}}><Text style={s.cardTitle}>Caregiver alerts enabled</Text><Text style={s.meta}>Medication not taken or unresolved confirmations can be surfaced to Rahul.</Text></View></View><Text style={s.section}>Recent activity</Text>{["Amlodipine confirmation · Today 01:10 PM","Metformin confirmation · Today 08:12 AM","Care plan activated · Today 07:55 AM"].map(x=><View style={s.row} key={x}><Icon name="checkmark-circle-outline"/><Text style={{marginLeft:12,color:C.ink}}>{x}</Text></View>)}</ScrollView>}
+
+function Health(){return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Health</Text><Text style={s.muted}>Patient-entered readings and notes.</Text>{[["Blood pressure","128 / 82 mmHg","09:12 AM"],["Blood glucose","112 mg/dL","08:40 AM"],["Weight","68.4 kg","07:30 AM"]].map(x=><View style={s.measure} key={x[0]}><View style={s.plus}><Icon name="pulse-outline"/></View><View style={{flex:1}}><Text style={s.meta}>{x[0]}</Text><Text style={s.measureVal}>{x[1]}</Text><Text style={s.tiny}>Today · {x[2]}</Text></View><Icon name="chevron-forward"/></View>)}</ScrollView>}
+
+function Food(){return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Nutrition assistant</Text><Text style={s.muted}>Context-aware guidance, not diagnosis or prescribing.</Text><View style={s.food}><Icon name="nutrition-outline" size={40}/><Text style={s.cardTitle}>Can I eat this?</Text><Text style={s.meta}>Demo question: “Can Anita have a small bowl of curd?”</Text><View style={s.answer}><Text style={s.answerLabel}>GREEN · GENERALLY COMPATIBLE</Text><Text style={s.answerText}>A small serving of plain, unsweetened curd can fit the example meal plan. Portion and the rest of the meal still matter.</Text></View></View></ScrollView>}
+
+function Consent(){return <ScrollView contentContainerStyle={s.content}><Text style={s.title}>Consent & safety</Text><Text style={s.muted}>Designed around patient control and clinician-provided care plans.</Text>{["Patient controls who can access shared information.","CareLoop organizes verified instructions; it is not an AI doctor.","It does not independently prescribe, change doses, or discontinue medicines.","Unclear extraction or conflicting information must be verified instead of guessed.","No automatic catch-up or double-dose advice is generated."].map(x=><View style={s.row} key={x}><Icon name="shield-checkmark-outline"/><Text style={{flex:1,marginLeft:12,color:C.ink,lineHeight:19}}>{x}</Text></View>)}</ScrollView>}
+
+export default function App(){
+ const[screen,setScreen]=useState<Screen>("Home");
+ const go=(x:Screen)=>setScreen(x);
+ const content=screen==="Home"?<Home go={go}/>:screen==="Create"?<Create go={go}/>:screen==="Upload"?<Upload go={go}/>:screen==="Verify"?<Verify go={go}/>:screen==="Plan"?<Plan go={go}/>:screen==="Reminder"?<Reminder go={go}/>:screen==="Family"?<Family/>:screen==="Health"?<Health/>:screen==="Food"?<Food/>:<Consent/>;
+ const back=screen!=="Home"?()=>go("Home"):undefined;
+ return <SafeAreaView style={s.safe}><Header back={!!back} onBack={back}/><View style={{flex:1}}>{content}</View>{screen==="Home"&&<View style={s.bottom}><Pressable onPress={()=>go("Home")}><Icon name="home"/><Text style={s.nav}>Home</Text></Pressable><Pressable onPress={()=>go("Plan")}><Icon name="calendar-outline"/><Text style={s.nav}>Care Plan</Text></Pressable><Pressable onPress={()=>go("Health")}><Icon name="pulse-outline"/><Text style={s.nav}>Health</Text></Pressable><Pressable onPress={()=>go("Food")}><Icon name="nutrition-outline"/><Text style={s.nav}>Nutrition</Text></Pressable><Pressable onPress={()=>go("Consent")}><Icon name="shield-outline"/><Text style={s.nav}>Safety</Text></Pressable></View>}</SafeAreaView>
+}
+
+const s=StyleSheet.create({
+ safe:{flex:1,backgroundColor:C.bg},header:{padding:16,paddingTop:10,flexDirection:"row",alignItems:"center",backgroundColor:C.bg},back:{marginRight:10},brand:{fontSize:23,fontWeight:"800",color:C.ink},tag:{fontSize:11,color:C.muted,marginTop:2},badge:{backgroundColor:"#E8FAF5",paddingHorizontal:9,paddingVertical:6,borderRadius:12},badgeText:{fontSize:9,fontWeight:"800",color:C.teal},content:{padding:20,paddingBottom:40},hero:{flexDirection:"row",justifyContent:"space-between",alignItems:"center",marginBottom:20},eyebrow:{fontSize:10,fontWeight:"800",letterSpacing:1.1,color:C.teal,marginBottom:5},title:{fontSize:28,fontWeight:"800",color:C.ink,letterSpacing:-.5},muted:{fontSize:14,color:C.muted,lineHeight:20,marginTop:3},avatar:{width:48,height:48,borderRadius:18,backgroundColor:"#DDF4EE",alignItems:"center",justifyContent:"center"},avatarTxt:{fontWeight:"800",color:C.teal},active:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:18,padding:15,flexDirection:"row",alignItems:"center"},activeIcon:{width:48,height:48,borderRadius:15,backgroundColor:"#E8FAF5",alignItems:"center",justifyContent:"center",marginRight:12},card:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:18,padding:16,marginTop:10},cardTitle:{fontWeight:"800",fontSize:15,color:C.ink},meta:{fontSize:12,color:C.muted,marginTop:4,lineHeight:18},green:{fontSize:9,fontWeight:"800",color:C.teal},section:{fontSize:17,fontWeight:"800",color:C.ink,marginTop:22,marginBottom:5},med:{fontSize:18,fontWeight:"800",color:C.ink,marginTop:5},btn:{backgroundColor:C.teal,borderRadius:13,padding:14,alignItems:"center",marginTop:15},btn2:{backgroundColor:"#F1F5F3"},btnText:{color:"#fff",fontWeight:"800"},btnText2:{color:C.ink},two:{flexDirection:"row",gap:10,marginTop:10},tile:{flex:1,backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:17,padding:15},tileTitle:{fontSize:13,fontWeight:"800",color:C.ink,marginTop:10},tileVal:{fontSize:13,fontWeight:"700",color:C.teal,marginTop:3},start:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:18,padding:15,flexDirection:"row",alignItems:"center",gap:12},plus:{width:45,height:45,borderRadius:14,backgroundColor:"#E8FAF5",alignItems:"center",justifyContent:"center"},steps:{marginVertical:22,gap:12},step:{flexDirection:"row",alignItems:"center"},stepCircle:{width:27,height:27,borderRadius:14,borderWidth:1,borderColor:C.line,alignItems:"center",justifyContent:"center",backgroundColor:C.card},stepNum:{fontSize:11,fontWeight:"800",color:C.muted},stepText:{marginLeft:10,fontWeight:"700",color:C.ink},profile:{flexDirection:"row",alignItems:"center",gap:12,marginVertical:14},upload:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:20,padding:24,alignItems:"center",marginTop:20},uploadTitle:{fontWeight:"800",color:C.ink,fontSize:15,marginTop:12},ocr:{backgroundColor:"#E8FAF5",padding:8,borderRadius:10,marginTop:12},ocrText:{color:C.teal,fontWeight:"800",fontSize:11},row:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:15,padding:14,flexDirection:"row",alignItems:"center",marginTop:8},warn:{backgroundColor:"#FFF8EA",borderRadius:15,padding:14,flexDirection:"row",gap:10,marginTop:15},warnText:{flex:1,color:"#6C5B35",fontSize:12,lineHeight:18},verifyRow:{paddingVertical:13,borderBottomWidth:1,borderBottomColor:C.line,flexDirection:"row",justifyContent:"space-between",alignItems:"center"},checkbox:{flexDirection:"row",alignItems:"flex-start",marginTop:18},box:{width:23,height:23,borderRadius:7,borderWidth:1,borderColor:"#B9C9C4",alignItems:"center",justifyContent:"center",marginRight:10},checkboxText:{flex:1,color:C.ink,fontSize:13,lineHeight:19},success:{backgroundColor:"#E8FAF5",borderRadius:18,padding:20,alignItems:"center",marginTop:20},successTitle:{fontSize:17,fontWeight:"800",color:C.ink,marginTop:8},reminder:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:22,padding:26,alignItems:"center",marginVertical:22},bigMed:{width:76,height:76,borderRadius:25,backgroundColor:C.blue,alignItems:"center",justifyContent:"center"},remTime:{fontSize:13,color:C.teal,fontWeight:"800",marginTop:17},remName:{fontSize:22,fontWeight:"800",color:C.ink,marginTop:5},link:{alignItems:"center",padding:18},linkText:{color:C.teal,fontWeight:"800"},family:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:18,padding:15,marginTop:20,flexDirection:"row",alignItems:"center",gap:12},alert:{backgroundColor:"#FFF8EA",borderRadius:18,padding:15,marginTop:12,flexDirection:"row",gap:12},measure:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:18,padding:15,marginTop:12,flexDirection:"row",alignItems:"center",gap:12},measureVal:{fontSize:19,fontWeight:"800",color:C.ink,marginTop:2},tiny:{fontSize:10,color:"#91A09C",marginTop:3},food:{backgroundColor:C.card,borderWidth:1,borderColor:C.line,borderRadius:20,padding:22,marginTop:20,alignItems:"center"},answer:{backgroundColor:"#E8FAF5",borderRadius:16,padding:15,marginTop:18,width:"100%"},answerLabel:{fontSize:10,fontWeight:"900",color:C.teal},answerText:{fontSize:13,color:C.ink,lineHeight:20,marginTop:7},bottom:{height:70,backgroundColor:"#fff",borderTopWidth:1,borderTopColor:C.line,flexDirection:"row",justifyContent:"space-around",alignItems:"center"},nav:{fontSize:9,color:C.muted,textAlign:"center",marginTop:3}
+});

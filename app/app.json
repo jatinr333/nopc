@@ -1,0 +1,6 @@
+{
+  "expo":{"name":"CareLoop Demo","slug":"careloop-v2-demo","version":"2.0.0",
+  "orientation":"portrait","userInterfaceStyle":"light","newArchEnabled":true,"scheme":"careloop",
+  "android":{"package":"com.careloop.demo","adaptiveIcon":{"backgroundColor":"#E8FAF5"}},
+  "ios":{"bundleIdentifier":"com.careloop.demo"},"plugins":["expo-router"]}
+}
