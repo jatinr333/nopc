@@ -3,7 +3,7 @@ name: Build CareLoop APK
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch: # This adds a "Run workflow" button on GitHub
+  workflow_dispatch:
 
 jobs:
   build-android:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          # Removed the cache line so it stops looking for a lock file
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
